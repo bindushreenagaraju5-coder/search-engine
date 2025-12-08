@@ -1,24 +1,50 @@
-import re
 import json
-from . import r
+from flask import jsonify
+import redis
+import requests
+from redis_index import index_to_redis, tokenize
 
-def redis_search(query):
-    words = re.findall(r"\w+", query.lower())
-    if not words:
-        return []
 
-    keys = [f"index:{w}" for w in words if r.exists(f"index:{w}")]
+DATA_URL = "https://november7-730026606190.europe-west1.run.app/messages"
+data_source = []
+r = redis.Redis(host="localhost", port=6379, db=0)
 
-    if not keys:
-        return []
+def load_data():
+    resp = requests.get(DATA_URL)
+    try:
+        data_source = resp.json()
+    except Exception:
+        return {"error": "Invalid JSON from source API"}, 500
+    if data_source and 'items' in data_source:
+        index_to_redis(data_source['items'])
+        
+def search(query,page,limit):
+    if not query:
+        return jsonify({"error": "q is required"}), 400
 
-    matched_ids = r.sinter(keys)
+    tokens = tokenize(query)
 
-    pipe = r.pipeline(transaction=False)
-    for mid in matched_ids:
-        pipe.get(f"message:{mid}")
+    redis_keys = [f"token:{t}" for t in tokens]
+    if not redis_keys:
+        load_data()
+    matching_ids = r.sinter(redis_keys)
 
-    raw_msgs = pipe.execute()
-    results = [json.loads(msg) for msg in raw_msgs if msg]
+    matching_ids = sorted(list(matching_ids))
+    start = (page - 1) * limit
+    end = start + limit
+    page_ids = matching_ids[start:end]
 
-    return results
+    results = []
+    for doc_id in page_ids:
+        raw = r.get(f"message:{doc_id.decode('utf-8')}")
+        if raw:
+            doc = json.loads(raw.decode('utf-8'))
+            tmp = {
+                'message': doc['message'],
+                'user_name': doc['user_name']
+            }
+            results.append(tmp)
+
+    if not results:
+        return {"error": f"{query} item not found"}
+    return jsonify(results)
