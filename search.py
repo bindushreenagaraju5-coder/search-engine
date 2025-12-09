@@ -33,8 +33,11 @@ def search(query,page,limit):
     tokens = tokenize(query)
 
     redis_keys = [f"token:{t}" for t in tokens]
-    if not redis_keys:
+    
+    if r.dbsize() == 0:
+        print("Loading and indexing data into Redis…")
         load_data()
+        
     matching_ids = r.sinter(redis_keys)
 
     matching_ids = sorted(list(matching_ids))
