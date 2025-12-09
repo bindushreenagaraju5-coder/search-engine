@@ -47,9 +47,10 @@ def search(query,page,limit):
 
     results = []
     for doc_id in page_ids:
-        raw = r.get(f"message:{doc_id.decode('utf-8')}")
+        doc = r.get(f"message:{doc_id}")
         if raw:
-            doc = json.loads(raw.decode('utf-8'))
+            doc = json.loads(raw)
+            #doc = json.loads(raw.decode('utf-8'))
             tmp = {
                 'message': doc['message'],
                 'user_name': doc['user_name']
