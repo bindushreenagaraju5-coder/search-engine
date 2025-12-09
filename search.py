@@ -7,7 +7,15 @@ from redis_index import index_to_redis, tokenize
 
 DATA_URL = "https://november7-730026606190.europe-west1.run.app/messages"
 data_source = []
-r = redis.Redis(host="localhost", port=6379, db=0)
+#r = redis.Redis(host="localhost", port=6379, db=0)
+
+from upstash_redis import Redis
+
+UPSTASH_REDIS_REST_URL = "https://communal-elf-7735.upstash.io"
+UPSTASH_REDIS_REST_TOKEN = "AR43AAImcDI3N2Q3Njk0ZDdkMmY0Yjg3OTk3MzYwODA3NzFmY2JlNHAyNzczNQ"
+
+r = Redis(url=UPSTASH_REDIS_REST_URL, token=UPSTASH_REDIS_REST_TOKEN)
+
 
 def load_data():
     resp = requests.get(DATA_URL)
