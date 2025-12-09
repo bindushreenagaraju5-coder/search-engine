@@ -18,7 +18,8 @@ def tokenize(text):
     return tokens
 
 def index_to_redis(documents):
-    pipe = r.pipeline()
+    #pipe = r.pipeline()
+    commands = []
 
     for doc in documents:
         doc_id = doc["id"]
@@ -26,10 +27,14 @@ def index_to_redis(documents):
         tokens = tokenize(text)
 
         # 1) Store original document
-        pipe.set(f"message:{doc_id}", json.dumps(doc))
+        #pipe.set(f"message:{doc_id}", json.dumps(doc))
+        commands.append(["SET", f"message:{doc_id}", json.dumps(doc)])
 
         # 2) Store index entries
         for token in tokens:
-            pipe.sadd(f"token:{token}", doc_id)
+            #pipe.sadd(f"token:{token}", doc_id)
+            commands.append(["SADD", f"token:{token}", doc_id])
 
-    pipe.execute()
+
+    #pipe.execute()
+    r.batch(commands)
