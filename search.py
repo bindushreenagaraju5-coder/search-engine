@@ -29,6 +29,7 @@ def load_data():
 def search(query,page,limit):
     if not query:
         return jsonify({"error": "q is required"}), 400
+    import pdb;pdb.set_trace();
 
     tokens = tokenize(query)
 
