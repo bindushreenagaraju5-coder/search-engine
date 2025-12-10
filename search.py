@@ -42,7 +42,8 @@ def search(query,page,limit):
         print("Loading and indexing data into Redis…")
         load_data()
     print(r.sinter(redis_keys),'r.sinter(redis_keys)')
-    matching_ids = r.sinter(redis_keys)
+    #matching_ids = r.sinter(redis_keys)
+    matching_ids = r.sinter(*redis_keys)
     
 
     matching_ids = sorted(list(matching_ids))
