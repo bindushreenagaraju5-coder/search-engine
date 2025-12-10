@@ -55,7 +55,7 @@ def search(query,page,limit):
 
     results = []
     for doc_id in page_ids:
-        doc = r.get(f"message:{doc_id}")
+        raw = r.get(f"message:{doc_id}")
         if raw:
             print(raw, '#########raw')
             doc = json.loads(raw)
