@@ -39,16 +39,20 @@ def search(query,page,limit):
         load_data()
         
     matching_ids = r.sinter(redis_keys)
+    
 
     matching_ids = sorted(list(matching_ids))
+    print("matching_ids", matching_ids)
     start = (page - 1) * limit
     end = start + limit
     page_ids = matching_ids[start:end]
+    print("page_ids", page_ids)
 
     results = []
     for doc_id in page_ids:
         doc = r.get(f"message:{doc_id}")
         if raw:
+            print(raw, '#########raw')
             doc = json.loads(raw)
             #doc = json.loads(raw.decode('utf-8'))
             tmp = {
