@@ -1,6 +1,6 @@
 import re
-import redis
 import json
+from upstash_redis import Redis
 
 #r = redis.Redis(host="localhost", port=6379, db=0)
 
