@@ -41,7 +41,7 @@ def search(query,page,limit):
     if r.dbsize() == 0:
         print("Loading and indexing data into Redis…")
         load_data()
-        
+    print(r.sinter(redis_keys),'r.sinter(redis_keys)')
     matching_ids = r.sinter(redis_keys)
     
 
