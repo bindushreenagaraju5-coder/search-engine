@@ -29,11 +29,14 @@ def load_data():
 def search(query,page,limit):
     if not query:
         return jsonify({"error": "q is required"}), 400
-    import pdb;pdb.set_trace();
+    
 
     tokens = tokenize(query)
+    print(tokens,'###########tokens')
 
     redis_keys = [f"token:{t}" for t in tokens]
+
+    print(redis_keys,'###########redis_keys')
     
     if r.dbsize() == 0:
         print("Loading and indexing data into Redis…")
